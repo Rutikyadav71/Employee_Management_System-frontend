@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/employees';
+const API_URL = 'https://springboot-ems-2004.up.railway.app/api/employees';
 
 
 export const getEmployees = () => axios.get(API_URL);
