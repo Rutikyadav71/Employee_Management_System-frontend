@@ -19,7 +19,7 @@ const LeaveRequestForm = () => {
     e.preventDefault();
     setMessage('');
     try {
-      await axios.post('http://localhost:8080/api/leaves', form);
+      await axios.post('http://joyful-bravery-production.up.railway.app/api/leaves', form);
       setMessage('Leave request submitted successfully.');
       setForm({ employeeId: '', startDate: '', endDate: '', reason: '' });
     } catch (err) {

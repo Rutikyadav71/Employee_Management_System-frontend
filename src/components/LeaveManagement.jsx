@@ -10,7 +10,7 @@ const LeaveManagement = () => {
 
   const fetchLeaves = async () => {
     try {
-      const res = await axios.get('https://ems-producation.up.railway.app/api/leaves');
+      const res = await axios.get('https://joyful-bravery-production.up.railway.app/api/leaves');
       setLeaves(res.data);
     } catch (err) {
       console.error('Error fetching leave requests', err);
@@ -20,7 +20,7 @@ const LeaveManagement = () => {
 
   const updateStatus = async (id, status) => {
   try {
-    const res = await axios.put(`https://ems-producation.up.railway.app/api/leaves/${id}`, {
+    const res = await axios.put(`https://joyful-bravery-production.up.railway.app/api/leaves/${id}`, {
       status: status  
     });
     const updatedLeaves = leaves.map((leave) =>

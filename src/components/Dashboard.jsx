@@ -12,8 +12,8 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const empRes = await axios.get('https://ems-producation.up.railway.app/api/employees');
-      const leaveRes = await axios.get('https://ems-producation.up.railway.app/api/leaves');
+      const empRes = await axios.get('https://joyful-bravery-production.up.railway.app/api/employees');
+      const leaveRes = await axios.get('https://joyful-bravery-production.up.railway.app/api/leaves');
       setEmployeeCount(empRes.data.length);
       setLeaveCount(leaveRes.data.length);
     } catch (err) {
