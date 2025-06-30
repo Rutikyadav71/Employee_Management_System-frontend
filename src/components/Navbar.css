@@ -1,0 +1,22 @@
+.dropdown-toggle::after {
+  margin-left: 0.5rem;
+}
+
+.toast-custom {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #198754;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  z-index: 1050;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease-in-out;
+  font-weight: 500;
+}
+.toast-custom.show {
+  opacity: 1;
+  transform: translateY(0);
+}
