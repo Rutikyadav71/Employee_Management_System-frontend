@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://ry-ems-backend.onrender.com/employees';
+const API_URL = 'https://ry-ems-backend.onrender.com/api/employees';
 
 /**
  * NOTE:
