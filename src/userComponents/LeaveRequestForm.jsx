@@ -34,7 +34,7 @@ const LeaveRequestForm = () => {
     }
 
     try {
-      await axios.post("http://localhost:8080/api/leaves", form);
+      await axios.post("https://ry-ems-backend.onrender.com/api/leaves", form);
       setMessage("✅ Leave request submitted successfully.");
       setForm({ ...form, startDate: "", endDate: "", reason: "" });
       setLeaves([]); // clear previous data
@@ -48,7 +48,7 @@ const LeaveRequestForm = () => {
     setMessage("");
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/leaves/employee/${form.empId}`
+        `https://ry-ems-backend.onrender.com/api/leaves/employee/${form.empId}`
       );
       setLeaves(res.data);
     } catch (err) {

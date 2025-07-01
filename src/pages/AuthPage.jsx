@@ -31,7 +31,7 @@ const AuthPage = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", form);
+      const res = await axios.post("https://ry-ems-backend.onrender.com/api/auth/login", form);
       const emp = res.data;
 
       if (emp.role !== "USER") {

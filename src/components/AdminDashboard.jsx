@@ -12,8 +12,8 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const empRes = await axios.get('http://localhost:8080/api/employees');
-      const leaveRes = await axios.get('http://localhost:8080/api/leaves');
+      const empRes = await axios.get('https://ry-ems-backend.onrender.com/api/employees');
+      const leaveRes = await axios.get('https://ry-ems-backend.onrender.com/api/leaves');
       setEmployeeCount(empRes.data.length);
       setLeaveCount(leaveRes.data.length);
     } catch (err) {

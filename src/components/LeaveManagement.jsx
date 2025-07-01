@@ -10,7 +10,7 @@ const LeaveManagement = () => {
 
   const fetchLeaves = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/api/leaves');
+      const res = await axios.get('https://ry-ems-backend.onrender.com/api/leaves');
       setLeaves(res.data);
     } catch (err) {
       console.error('Error fetching leave requests', err);
@@ -19,7 +19,7 @@ const LeaveManagement = () => {
 
   const updateStatus = async (id, status) => {
     try {
-      const res = await axios.put(`http://localhost:8080/api/leaves/${id}`, {
+      const res = await axios.put(`https://ry-ems-backend.onrender.com/api/leaves/${id}`, {
         status: status
       });
 

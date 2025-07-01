@@ -14,7 +14,7 @@ const UserDashboard = () => {
 
   const fetchEmployeeProfile = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/employees/${empId}`);
+      const res = await axios.get(`https://ry-ems-backend.onrender.com/api/employees/${empId}`);
       setProfile(res.data);
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -23,7 +23,7 @@ const UserDashboard = () => {
 
   const fetchLeaveHistory = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/leaves/employee/${empId}`);
+      const res = await axios.get(`https://ry-ems-backend.onrender.com/api/leaves/employee/${empId}`);
       setLeaveHistory(res.data);
     } catch (err) {
       console.error('Error fetching leave history:', err);

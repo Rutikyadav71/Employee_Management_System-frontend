@@ -32,7 +32,7 @@ const AddEmployee = () => {
     }
 
     try {
-      await axios.post("http://localhost:8080/api/employees", employee);
+      await axios.post("https://ry-ems-backend.onrender.com/api/employees", employee);
       setMessage("✅ Employee added successfully.");
       setTimeout(() => navigate("/admin/employees"), 1500);
     } catch (err) {

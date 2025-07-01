@@ -17,7 +17,7 @@ const AdminAuthPage = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/admin/exists");
+        const res = await axios.get("https://ry-ems-backend.onrender.com/api/admin/exists");
         setAdminExists(res.data.exists);
         if (res.data.exists) setIsLogin(true); // force login mode
       } catch (err) {
@@ -43,8 +43,8 @@ const AdminAuthPage = () => {
 
     try {
       const url = isLogin
-        ? "http://localhost:8080/api/admin/login"
-        : "http://localhost:8080/api/admin/register";
+        ? "https://ry-ems-backend.onrender.com/api/admin/login"
+        : "https://ry-ems-backend.onrender.com/api/admin/register";
 
       const res = await axios.post(url, form);
       const data = res.data;
