@@ -87,7 +87,7 @@ const LeaveRequestForm = () => {
                 id="empId"
                 name="empId"
                 value={form.empId}
-                readOnly
+                // readOnly
               />
             </div>
 

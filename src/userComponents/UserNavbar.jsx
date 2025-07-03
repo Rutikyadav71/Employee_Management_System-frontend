@@ -17,7 +17,11 @@ function UserNavbar({ toggleSidebar }) {
         <button className="btn btn-dark me-3" onClick={toggleSidebar}>
           <FaBars size={20} />
         </button>
-        <span className="navbar-brand mb-0 h1 text-white">EMS</span>
+        <span className="navbar-brand mb-0 h1 text-white">
+          <Link to="/user/dashboard" className="nav-link text-white">
+              EMS
+            </Link>
+        </span>
       </div>
 
       <div className="d-flex align-items-center">

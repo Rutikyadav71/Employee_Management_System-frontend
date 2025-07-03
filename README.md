@@ -42,8 +42,14 @@ A full-stack **Employee Management System** built using **Spring Boot (Java)** f
 |-------------|------------|
 | ![Admin Dashboard](public/AdminDashboard.png) | ![User Dashboard](public/UserDashboard.png) |
 
-|         Diagrams         |
-|--------------------------|
+|  FlowChart  |SystemDesign|
+|-------------|------------|
 | ![FlowChart](public/FlowChart.png) | ![SystemDesign](public/SystemDesign.png) |
+
+---
+
+## 🌐 Live Demo
+
+🔗 [Live Site](https://ry-ems.vercel.app/)
 
 ---
