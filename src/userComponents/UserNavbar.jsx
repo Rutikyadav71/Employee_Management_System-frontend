@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { FaBars } from 'react-icons/fa';
+import { Link} from 'react-router-dom';
 import '../components/Navbar.css';
 
 function UserNavbar({ toggleSidebar }) {
@@ -19,8 +20,8 @@ function UserNavbar({ toggleSidebar }) {
         </button>
         <span className="navbar-brand mb-0 h1 text-white">
           <Link to="/user/dashboard" className="nav-link text-white">
-              EMS
-            </Link>
+            EMS
+          </Link>
         </span>
       </div>
 

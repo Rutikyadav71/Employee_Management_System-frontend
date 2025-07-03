@@ -87,7 +87,8 @@ const LeaveRequestForm = () => {
                 id="empId"
                 name="empId"
                 value={form.empId}
-                // readOnly
+                onChange={handleChange}
+                required
               />
             </div>
 
