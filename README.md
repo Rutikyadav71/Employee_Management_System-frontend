@@ -50,7 +50,7 @@ A full-stack **Employee Management System** built using **Spring Boot (Java)** f
 
 ## ⚙️ Backend Code
 
-🔗 [Employee_Management_System-backend]([https://ry-ems.vercel.app/](https://github.com/Rutikyadav71/Employee_Management_System-backend))
+🔗 [Employee_Management_System-backend](https://github.com/Rutikyadav71/Employee_Management_System-backend)
 
 ---
 
