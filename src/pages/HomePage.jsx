@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./HomePage.css"; // For custom styling
+import "./HomePage.css"; 
 
 const HomePage = () => {
   return (
@@ -13,7 +13,6 @@ const HomePage = () => {
       </div>
 
       <div className="auth-cards d-flex gap-4 flex-wrap justify-content-center">
-        {/* Employee Card */}
         <div className="card shadow p-4 home-card text-center">
           <img
             src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
@@ -31,7 +30,6 @@ const HomePage = () => {
           </Link>
         </div>
 
-        {/* Admin Card */}
         <div className="card shadow p-4 home-card text-center">
           <img
             src="https://cdn-icons-png.flaticon.com/512/2206/2206368.png"
@@ -56,7 +54,7 @@ const HomePage = () => {
           beacause here only one admin can register and that is already
           registered!!!
         </h6>
-        <p>Email: yadavrutik2004@gmail.com | Password: Rutik@2004</p>
+        <p>Email: yadavrutik2004@gmail.com | Password: Rutik@123</p>
         <h6>
           Note: For login as Employee you can add employee from admin panel and
           login or use this password for login with already added Employee for

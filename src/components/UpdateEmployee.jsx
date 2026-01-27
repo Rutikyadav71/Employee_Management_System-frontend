@@ -158,20 +158,6 @@ function UpdateEmployee() {
             </div>
           </div>
 
-          {/* <div className="mb-3">
-            <label className="form-label">Role</label>
-            <select
-              className="form-select"
-              name="role"
-              value={employee.role}
-              onChange={handleChange}
-              required
-            >
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div> */}
-
           <div className="d-flex justify-content-center mt-4">
             <button type="submit" className="btn btn-success px-4">
               Update

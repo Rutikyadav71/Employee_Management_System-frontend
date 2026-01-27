@@ -30,7 +30,6 @@
   transition: margin-left 0.3s ease;
 }
 
-/* Optional: dim background when sidebar is open (mobile) */
 .overlay {
   position: fixed;
   top: 0;
@@ -41,7 +40,6 @@
   z-index: 1500;
 }
 
-/* On larger screens, let content stay full width */
 @media (min-width: 768px) {
   .main-content {
     margin-left: 0;

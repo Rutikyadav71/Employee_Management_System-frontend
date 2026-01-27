@@ -1,4 +1,3 @@
-// src/userComponents/UserProfile.js
 import React from 'react';
 
 function UserProfile() {

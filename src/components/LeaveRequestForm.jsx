@@ -12,14 +12,6 @@ const LeaveRequestForm = () => {
   const [message, setMessage] = useState("");
   const [leaves, setLeaves] = useState([]);
 
-  // Auto-fill empId from localStorage if available
-  // useEffect(() => {
-  //   const storedId = localStorage.getItem("empId");
-  //   if (storedId) {
-  //     setForm((prev) => ({ ...prev, empId: storedId }));
-  //   }
-  // }, []);
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -34,10 +26,10 @@ const LeaveRequestForm = () => {
     }
 
     try {
-      await axios.post("https://ry-ems-backend.onrender.com/api/leaves", form);
+      await axios.post("http://localhost:8080/api/leaves", form);
       setMessage("✅ Leave request submitted successfully.");
       setForm({ ...form, startDate: "", endDate: "", reason: "" });
-      setLeaves([]); // clear previous data
+      setLeaves([]); 
     } catch (err) {
       console.error("Error submitting leave request:", err);
       setMessage("❌ Failed to submit leave request.");
@@ -48,7 +40,7 @@ const LeaveRequestForm = () => {
     setMessage("");
     try {
       const res = await axios.get(
-        `https://ry-ems-backend.onrender.com/api/leaves/employee/${form.empId}`
+        `http://localhost:8080/api/leaves/employee/${form.empId}`
       );
       setLeaves(res.data);
     } catch (err) {

@@ -8,8 +8,8 @@ const AdminProfile = () => {
   const email = localStorage.getItem('adminEmail');
 
   const handleLogout = () => {
-    localStorage.clear(); // or selectively remove keys
-    navigate('/'); // redirect to login page
+    localStorage.clear(); 
+    navigate('/'); 
   };
 
   return (

@@ -12,7 +12,8 @@ const LeaveRequestForm = () => {
   const [message, setMessage] = useState("");
   const [leaves, setLeaves] = useState([]);
 
-  // Auto-fill empId from localStorage if available
+  const today = new Date().toISOString().split("T")[0];
+
   useEffect(() => {
     const storedId = localStorage.getItem("empId");
     if (storedId) {
@@ -28,13 +29,21 @@ const LeaveRequestForm = () => {
     e.preventDefault();
     setMessage("");
 
+    if (
+      new Date(form.startDate) < new Date(today) ||
+      new Date(form.endDate) < new Date(today)
+    ) {
+      setMessage("❌ Leave dates cannot be in the past.");
+      return;
+    }
+
     if (new Date(form.startDate) > new Date(form.endDate)) {
       setMessage("❌ Start date must be before end date.");
       return;
     }
 
     try {
-      await axios.post("https://ry-ems-backend.onrender.com/api/leaves", form);
+      await axios.post("http://localhost:8080/api/leaves", form);
       setMessage("✅ Leave request submitted successfully.");
       setForm({ ...form, startDate: "", endDate: "", reason: "" });
       setLeaves([]); // clear previous data
@@ -48,7 +57,7 @@ const LeaveRequestForm = () => {
     setMessage("");
     try {
       const res = await axios.get(
-        `https://ry-ems-backend.onrender.com/api/leaves/employee/${form.empId}`
+        `http://localhost:8080/api/leaves/employee/${form.empId}`
       );
       setLeaves(res.data);
     } catch (err) {
@@ -102,6 +111,7 @@ const LeaveRequestForm = () => {
                 name="startDate"
                 value={form.startDate}
                 onChange={handleChange}
+                min={today}   
                 required
               />
             </div>
@@ -117,6 +127,7 @@ const LeaveRequestForm = () => {
                 name="endDate"
                 value={form.endDate}
                 onChange={handleChange}
+                min={form.startDate || today} 
                 required
               />
             </div>
@@ -160,7 +171,10 @@ const LeaveRequestForm = () => {
           <h5 className="fw-bold text-primary text-center mb-3">
             Leave History for Employee ID: {form.empId}
           </h5>
-          <div className="table-responsive" style={{ maxHeight: "300px", overflowY: "auto" }}>
+          <div
+            className="table-responsive"
+            style={{ maxHeight: "300px", overflowY: "auto" }}
+          >
             <table className="table table-bordered table-striped">
               <thead className="table-dark">
                 <tr>

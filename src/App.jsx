@@ -12,6 +12,7 @@ import {
 import HomePage from "./pages/HomePage";
 import EmployeeLogin from "./pages/AuthPage";
 import AdminAuthPage from "./pages/AdminAuthPage";
+import ChatPage from "./pages/ChatPage";
 
 // Admin Components
 import AdminDashboard from "./components/AdminDashboard";
@@ -23,6 +24,8 @@ import AdminNavbar from "./components/AdminNavbar";
 import AdminSidebar from "./components/AdminSidebar";
 import LeaveManagement from "./components/LeaveManagement";
 import LeaveRequestForm from "./components/LeaveRequestForm";
+import AdminNotifications from "./pages/AdminNotifications";
+
 
 // User Components
 import UserDashboard from "./userComponents/UserDashboard";
@@ -30,6 +33,8 @@ import UserProfile from "./userComponents/UserProfile";
 import UserLeaveRequestForm from "./userComponents/LeaveRequestForm";
 import UserNavbar from "./userComponents/UserNavbar";
 import UserSidebar from "./userComponents/UserSidebar";
+import UserLeaveDetails from "./pages/UserLeaveDetails";
+import UserNotifications from "./pages/UserNotifications";
 
 const ProtectedRoute = ({ allowedRole }) => {
   const role = localStorage.getItem("role");
@@ -59,7 +64,7 @@ const AdminLayout = () => {
         />
       )}
 
-      <div className="flex-grow-1 d-flex flex-column">
+      <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
         <AdminNavbar toggleSidebar={toggleSidebar} />
         <div className="main-content p-3 flex-grow-1">
           <Routes>
@@ -70,6 +75,8 @@ const AdminLayout = () => {
             <Route path="profile" element={<AdminProfile />} />
             <Route path="apply-leave" element={<LeaveRequestForm />} />
             <Route path="leaves" element={<LeaveManagement />} />
+            <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="chat" element={<ChatPage />} />
           </Routes>
         </div>
       </div>
@@ -82,7 +89,8 @@ const UserLayout = () => {
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
   return (
-    <div className="app-container d-flex" style={{ height: "100vh", overflow: "hidden", paddingBottom: "2rem" }}>
+    // <div className="app-container d-flex" style={{ height: "100vh", overflow: "hidden", paddingBottom: "2rem" }}>
+    <div className="app-container ">
       <UserSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       {isSidebarOpen && (
         <div
@@ -100,13 +108,16 @@ const UserLayout = () => {
         />
       )}
 
-      <div className="flex-grow-1 d-flex flex-column">
+      <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
         <UserNavbar toggleSidebar={toggleSidebar} />
         <div className="main-content p-3 flex-grow-1">
           <Routes>
             <Route path="dashboard" element={<UserDashboard />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="apply-leave" element={<UserLeaveRequestForm />} />
+            <Route path="leaves/employee/:empId" element={<UserLeaveDetails />} />
+            <Route path="notifications" element={<UserNotifications />} />
+            <Route path="chat" element={<ChatPage />} />
           </Routes>
         </div>
       </div>

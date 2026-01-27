@@ -13,13 +13,12 @@ const AdminAuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // 🔍 Check if an admin already exists
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await axios.get("https://ry-ems-backend.onrender.com/api/admin/exists");
+        const res = await axios.get("http://localhost:8080/api/admin/exists");
         setAdminExists(res.data.exists);
-        if (res.data.exists) setIsLogin(true); // force login mode
+        if (res.data.exists) setIsLogin(true);
       } catch (err) {
         console.error("Error checking admin existence", err);
       }
@@ -43,17 +42,22 @@ const AdminAuthPage = () => {
 
     try {
       const url = isLogin
-        ? "https://ry-ems-backend.onrender.com/api/admin/login"
-        : "https://ry-ems-backend.onrender.com/api/admin/register";
+        ? "http://localhost:8080/api/admin/login"
+        : "http://localhost:8080/api/admin/register";
 
       const res = await axios.post(url, form);
       const data = res.data;
 
       if (isLogin) {
-        // Save to localStorage
+        localStorage.clear(); 
+
+        localStorage.setItem("id", data.id);
+        localStorage.setItem("role", "ADMIN");
+
+        localStorage.setItem("name", data.name);
+        localStorage.setItem("email", data.email);
         localStorage.setItem("adminEmail", data.email);
         localStorage.setItem("adminName", data.name);
-        localStorage.setItem("role", "ADMIN");
 
         navigate("/admin/dashboard");
       } else {
@@ -149,8 +153,8 @@ const AdminAuthPage = () => {
                   ? "Logging in..."
                   : "Registering..."
                 : isLogin
-                ? "Login"
-                : "Register"}
+                  ? "Login"
+                  : "Register"}
             </button>
           </form>
         ) : (

@@ -5,7 +5,9 @@ import {
   FaPlus,
   FaHome,
   FaClipboard,
-  FaTimes
+  FaTasks,
+  FaTimes,
+  FaComments
 } from "react-icons/fa";
 import "./Sidebar.css";
 
@@ -38,12 +40,17 @@ function AdminSidebar({ isOpen, toggleSidebar }) {
         </li>
         <li className="nav-item mb-2">
           <Link to="/admin/leaves" className="nav-link text-white">
-            <FaClipboard className="me-2" /> Manage Leaves
+            <FaTasks className="me-2" /> Manage Leaves
           </Link>
         </li>
         <li className="nav-item mb-2">
           <Link to="/admin/apply-leave" className="nav-link text-white">
             <FaClipboard className="me-2" /> Apply Leaves
+          </Link>
+        </li>
+        <li className="nav-item mb-2">
+          <Link to="/admin/chat" className="nav-link text-white">
+            <FaComments className="me-2" /> Chat Room
           </Link>
         </li>
       </ul>
