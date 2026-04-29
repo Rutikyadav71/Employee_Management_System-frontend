@@ -18,7 +18,7 @@ export default function AuthPage() {
     if (form.password.length < 6) { setMessage("Password must be at least 6 characters."); return; }
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", form);
+      const res = await axios.post("https://employee-management-system-backend-wc0p.onrender.com/api/auth/login", form);
       const data = res.data;
       localStorage.clear();
 

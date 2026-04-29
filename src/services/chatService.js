@@ -13,7 +13,7 @@ export function connect(userId, role, onMessage) {
   }
 
   stompClient = new Client({
-    webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
+    webSocketFactory: () => new SockJS("https://employee-management-system-backend-wc0p.onrender.com/ws"),
     reconnectDelay: 3000,
 
     onConnect: () => {
@@ -38,7 +38,7 @@ export function connect(userId, role, onMessage) {
     },
 
     onWebSocketClose: () => { isConnected = false; },
-    onStompError:     () => { isConnected = false; },
+    onStompError: () => { isConnected = false; },
   });
 
   stompClient.activate();
