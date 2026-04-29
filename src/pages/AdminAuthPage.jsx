@@ -18,7 +18,7 @@ export default function AdminAuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/admin/exists").then(res => {
+    axios.get("https://employee-management-system-backend-wc0p.onrender.com/api/admin/exists").then(res => {
       setFirstTime(res.data.firstTime);   // true = no admins exist yet
       setAdminFull(res.data.full);
     }).catch(() => { });
