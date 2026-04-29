@@ -1,165 +1,111 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { addEmployee } from "../services/EmployeeService.js";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-const AddEmployee = () => {
+const EyeIcon = ({open}) => open
+  ? <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M1 1l22 22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+  : <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/></svg>;
+
+const departments = ["Engineering","Marketing","HR","Finance","Operations","Sales","Design","Product","Legal","Support"];
+
+export default function AddEmployee() {
   const navigate = useNavigate();
-  const [employee, setEmployee] = useState({
-    empId: "",
-    name: "",
-    department: "",
-    email: "",
-    password: "",
-    salary: "",
-    role: "USER",
-  });
-
+  const [employee, setEmployee] = useState({empId:"",name:"",department:"",email:"",password:"",salary:"",role:"USER"});
   const [message, setMessage] = useState("");
+  const [msgType, setMsgType] = useState("success");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setEmployee({ ...employee, [e.target.name]: e.target.value });
-  };
+  const handleChange = e => setEmployee({...employee, [e.target.name]: e.target.value});
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-
-    if (employee.password.length < 6) {
-      setMessage("❌ Password must be at least 6 characters.");
-      return;
-    }
-
+  const handleSubmit = async e => {
+    e.preventDefault(); setMessage("");
+    if (employee.password.length < 6) { setMessage("Password must be at least 6 characters."); setMsgType("error"); return; }
+    setLoading(true);
     try {
-      await axios.post("http://localhost:8080/api/employees", employee);
-      setMessage("✅ Employee added successfully.");
+      await addEmployee(employee);
+      setMessage("Employee added successfully!"); setMsgType("success");
       setTimeout(() => navigate("/admin/employees"), 1500);
-    } catch (err) {
-      console.error("Error adding employee:", err);
-      setMessage("❌ Failed to add employee.");
-    }
+    } catch(err) {
+      setMessage(err.response?.data?.message || "Failed to add employee."); setMsgType("error");
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-start p-3" style={{ height: 'calc(100vh - 70px)', overflowY: 'auto' }}>
-      <div className="card shadow-sm p-4 w-100" style={{ maxWidth: "500px" }}>
-        <h4 className="mb-4 fw-bold text-primary text-center">Add New Employee</h4>
+    <div className="fade-in">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Add Employee</div>
+          <div className="page-sub">Create a new team member account</div>
+        </div>
+      </div>
 
-        {message && (
-          <div
-            className={`alert ${message.includes("✅") ? "alert-success" : "alert-danger"}`}
-          >
-            {message}
-          </div>
-        )}
+      <div style={{maxWidth:600,margin:"0 auto"}}>
+        <div className="ems-card">
+          {message && <div className={`alert-ems alert-${msgType}`}>{message}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Employee ID</label>
-            <input
-              type="number"
-              className="form-control"
-              name="empId"
-              value={employee.empId}
-              onChange={handleChange}
-              required
-              placeholder="Enter unique employee ID"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Name</label>
-            <input
-              type="text"
-              className="form-control"
-              name="name"
-              value={employee.name}
-              onChange={handleChange}
-              required
-              placeholder="Enter full name"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Department</label>
-            <input
-              type="text"
-              className="form-control"
-              name="department"
-              value={employee.department}
-              onChange={handleChange}
-              required
-              placeholder="Enter department"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              name="email"
-              value={employee.email}
-              onChange={handleChange}
-              required
-              placeholder="Enter email address"
-              autoComplete="username"
-            />
-          </div>
-
-          <div className="mb-3 position-relative">
-            <label className="form-label">Password</label>
-            <div className="position-relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                className="form-control pe-5"
-                name="password"
-                value={employee.password}
-                onChange={handleChange}
-                required
-                placeholder="Enter your password"
-                autoComplete="current-password"
-              />
-              <span
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: "15px",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  fontSize: "1.1rem",
-                  color: "#495057",
-                }}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
+          <form onSubmit={handleSubmit}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0 16px"}}>
+              {[
+                {name:"empId",label:"Employee ID",placeholder:"e.g. 1001",type:"text"},
+                {name:"name",label:"Full Name",placeholder:"Enter full name",type:"text"},
+              ].map(f => (
+                <div className="form-group" key={f.name}>
+                  <label className="form-label">{f.label}</label>
+                  <input name={f.name} type={f.type} value={employee[f.name]} onChange={handleChange}
+                    className="form-control-ems" placeholder={f.placeholder} required/>
+                </div>
+              ))}
             </div>
-          </div>
 
-          <div className="mb-3">
-            <label className="form-label">Salary</label>
-            <input
-              type="number"
-              className="form-control"
-              name="salary"
-              value={employee.salary}
-              onChange={handleChange}
-              required
-              placeholder="Enter salary"
-            />
-          </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0 16px"}}>
+              <div className="form-group">
+                <label className="form-label">Department</label>
+                <select name="department" value={employee.department} onChange={handleChange} className="form-control-ems" required>
+                  <option value="">Select department</option>
+                  {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Salary (₹)</label>
+                <input name="salary" type="number" value={employee.salary} onChange={handleChange}
+                  className="form-control-ems" placeholder="e.g. 50000" required/>
+              </div>
+            </div>
 
-          <div className="d-flex justify-content-center mt-4">
-            <button type="submit" className="btn btn-primary px-4">
-              Add
-            </button>
-          </div>
-        </form>
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <input name="email" type="email" value={employee.email} onChange={handleChange}
+                className="form-control-ems" placeholder="employee@company.com" required autoComplete="email"/>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <div className="input-wrap">
+                <input name="password" type={showPassword ? "text" : "password"} value={employee.password}
+                  onChange={handleChange} className="form-control-ems" placeholder="Min. 6 characters"
+                  style={{paddingRight:40}} required autoComplete="new-password"/>
+                <span className="input-icon-right" onClick={() => setShowPassword(v => !v)}><EyeIcon open={showPassword}/></span>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Role</label>
+              <select name="role" value={employee.role} onChange={handleChange} className="form-control-ems">
+                <option value="USER">Employee (User)</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+
+            <div style={{display:"flex",gap:10,marginTop:8}}>
+              <button type="button" className="btn-ems btn-secondary-ems" onClick={() => navigate("/admin/employees")}>Cancel</button>
+              <button type="submit" className="btn-ems btn-primary-ems" disabled={loading} style={{flex:1}}>
+                {loading ? "Adding..." : "Add Employee"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
-};
-
-export default AddEmployee;
+}

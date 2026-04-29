@@ -6,56 +6,56 @@ let isConnected = false;
 let pendingMessages = [];
 
 export function connect(userId, role, onMessage) {
-  console.log("Connecting WS as:", userId, role);
+  if (stompClient) {
+    stompClient.deactivate();
+    stompClient = null;
+    isConnected = false;
+  }
 
   stompClient = new Client({
     webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
     reconnectDelay: 3000,
-    debug: (str) => console.log("STOMP:", str),
 
     onConnect: () => {
-      console.log("WebSocket connected");
       isConnected = true;
-
+      // Subscribe to this user's personal queue
+      // Key pattern: {ROLE}_{userId}  e.g. "ADMIN_1" or "USER_101"
       const userQueue = `/user/${role}_${userId}/queue/messages`;
-      console.log("Subscribing:", userQueue);
-
-      stompClient.subscribe(userQueue, (msg) => {
-        const body = JSON.parse(msg.body);
-        console.log("Incoming WS:", body);
-        onMessage(body);
+      stompClient.subscribe(userQueue, (frame) => {
+        try {
+          const body = JSON.parse(frame.body);
+          onMessage(body);
+        } catch (e) { console.error("WS parse error", e); }
       });
 
+      // Flush any queued messages
       const queued = [...pendingMessages];
       pendingMessages = [];
-
-      queued.forEach((m) => {
-        stompClient.publish({
-          destination: "/app/chat.send",
-          body: JSON.stringify(m)
-        });
-      });
+      queued.forEach(m => stompClient.publish({
+        destination: "/app/chat.send",
+        body: JSON.stringify(m),
+      }));
     },
 
-    onWebSocketClose: () => {
-      console.warn("WebSocket closed");
-      isConnected = false;
-    }
+    onWebSocketClose: () => { isConnected = false; },
+    onStompError:     () => { isConnected = false; },
   });
 
   stompClient.activate();
 }
 
+/**
+ * msg shape expected by ChatMessage entity:
+ *   senderId, senderRole, receiverId, receiverRole, message
+ * Note: field is "message" (not "content")!
+ */
 export function sendMessage(msg) {
   if (stompClient && isConnected) {
-    console.log("Sending WS:", msg);
-
     stompClient.publish({
       destination: "/app/chat.send",
-      body: JSON.stringify(msg)
+      body: JSON.stringify(msg),
     });
   } else {
-    console.warn("WebSocket not connected yet — queued");
     pendingMessages.push(msg);
   }
 }
@@ -66,6 +66,5 @@ export function disconnect() {
     stompClient = null;
     isConnected = false;
     pendingMessages = [];
-    console.log("WebSocket disconnected");
   }
 }

@@ -1,103 +1,119 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../services/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
-function UserNotifications() {
-  const empId = localStorage.getItem("empId");
+const BellIcon = () => <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>;
+
+export default function UserNotifications() {
+  const empId    = localStorage.getItem("empId");
   const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading,       setLoading]       = useState(true);
 
   useEffect(() => {
-    if (empId) {
-      fetchNotifications();
-    }
+    if (empId) fetchNotifications();
+    else setLoading(false);
   }, [empId]);
 
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/notifications");
-
-      const userNotifs = res.data.filter(
-        (n) =>
-          n.message.toLowerCase().includes("leave") &&
-          n.message.includes(`Emp ID: ${empId}`),
+      const res  = await axiosInstance.get("/api/notifications");
+      const mine = res.data.filter(n =>
+        n.message.toLowerCase().includes("leave") &&
+        n.message.includes(`Emp ID: ${empId}`)
       );
-
-      setNotifications(userNotifs);
-    } catch (err) {
-      console.error("User notification fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
+      setNotifications(mine);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  const handleNotificationClick = async (notif) => {
+  const handleClick = async n => {
     try {
-      await axios.put("http://localhost:8080/api/notifications/mark-all-read");
-
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-
-      const match = notif.message.match(/Leave ID:\s*(\d+)/);
-      const leaveId = match ? match[1] : null;
-
-      if (leaveId) {
-        navigate(`/user/leaves/employee/${empId}?leaveId=${leaveId}`);
-      } else {
-        navigate(`/user/leaves/employee/${empId}`);
-      }
-    } catch (err) {
-      console.error("❌ Failed to mark notifications read:", err);
-    }
+      await axiosInstance.put("/api/notifications/mark-all-read");
+      setNotifications(prev => prev.map(x => ({ ...x, read: true })));
+      const match = n.message.match(/Leave ID:\s*(\d+)/);
+      navigate(match ? `/user/leaves/employee/${empId}?leaveId=${match[1]}` : `/user/leaves/employee/${empId}`);
+    } catch (e) { console.error(e); }
   };
 
-  if (loading) {
-    return (
-      <div className="container py-4">
-        <div className="text-center text-muted">Loading notifications...</div>
+  const unread = notifications.filter(n => !n.read).length;
+
+  const RowSkeleton = () => (
+    <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)", display: "flex", gap: 12 }}>
+      <div className="skeleton" style={{ width: 8, height: 8, borderRadius: "50%", marginTop: 5, flexShrink: 0 }} />
+      <div style={{ flex: 1 }}>
+        <div className="skeleton" style={{ width: "70%", height: 13, borderRadius: 4, marginBottom: 6 }} />
+        <div className="skeleton" style={{ width: "40%", height: 11, borderRadius: 4 }} />
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
-    <div className="container py-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="fw-bold mb-0">Your Leave Notifications</h4>
-
-        <button
-          className="btn btn-outline-secondary px-4"
-          onClick={() => navigate("/user/dashboard")}
-        >
-          ← Back to Dashboard
-        </button>
+    <div className="fade-in">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Notifications</div>
+          <div className="page-sub">{unread > 0 ? `${unread} unread updates` : "All caught up"}</div>
+        </div>
+        {unread > 0 && (
+          <button
+            className="btn-ems btn-secondary-ems"
+            style={{ fontSize: 12 }}
+            onClick={async () => {
+              await axiosInstance.put("/api/notifications/mark-all-read").catch(() => {});
+              fetchNotifications();
+            }}
+          >
+            Mark all read
+          </button>
+        )}
       </div>
 
-      {notifications.length === 0 ? (
-        <div className="alert alert-light text-center text-muted">
-          No leave notifications yet.
-        </div>
-      ) : (
-        <div className="list-group shadow-sm">
-          {notifications.map((n) => (
-            <button
-              key={n.id}
-              className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${
-                n.read ? "text-muted" : "fw-semibold"
-              }`}
-              onClick={() => handleNotificationClick(n)}
+      <div className="ems-card" style={{ padding: 0 }}>
+        {loading ? (
+          Array(5).fill(0).map((_, i) => <RowSkeleton key={i} />)
+        ) : notifications.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-3)" }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12, opacity: 0.3 }}><BellIcon /></div>
+            <div style={{ fontSize: 14 }}>No leave notifications yet</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>You'll be notified when your leave status changes</div>
+          </div>
+        ) : (
+          notifications.map((n, i) => (
+            <div
+              key={n.id || i}
+              onClick={() => handleClick(n)}
+              style={{
+                padding: "14px 20px",
+                borderBottom: i < notifications.length - 1 ? "1px solid var(--border)" : "none",
+                cursor: "pointer",
+                display: "flex", alignItems: "flex-start", gap: 12,
+                background: !n.read ? "rgba(99,102,241,0.03)" : "transparent",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--bg-elevated)"}
+              onMouseLeave={e => e.currentTarget.style.background = !n.read ? "rgba(99,102,241,0.03)" : "transparent"}
             >
-              <span>{n.message}</span>
-
-              {!n.read && (
-                <span className="badge bg-primary rounded-pill">New</span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+              <div style={{
+                width: 8, height: 8, borderRadius: "50%", marginTop: 5, flexShrink: 0,
+                background: !n.read ? "var(--accent)" : "var(--text-3)"
+              }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13.5, color: n.read ? "var(--text-2)" : "var(--text-1)", fontWeight: n.read ? 400 : 500 }}>
+                  {n.message}
+                </div>
+                {n.createdAt && (
+                  <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 3 }}>
+                    {new Date(n.createdAt).toLocaleString("en-IN", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                )}
+              </div>
+              {!n.read && <span className="badge badge-blue" style={{ flexShrink: 0 }}>New</span>}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
-
-export default UserNotifications;

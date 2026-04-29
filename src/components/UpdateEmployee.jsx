@@ -1,169 +1,106 @@
-import React, { useState, useEffect } from 'react';
-import { updateEmployee, getEmployees } from '../services/EmployeeService.js';
-import { useNavigate, useParams } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { updateEmployee, getEmployees } from "../services/EmployeeService.js";
+import { useNavigate, useParams } from "react-router-dom";
+
+const EyeIcon = ({open}) => open
+  ? <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M1 1l22 22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+  : <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/></svg>;
+
+const departments = ["Engineering","Marketing","HR","Finance","Operations","Sales","Design","Product","Legal","Support"];
 
 function UpdateEmployee() {
-  const [employee, setEmployee] = useState({
-    empId: '',
-    name: '',
-    department: '',
-    salary: '',
-    email: '',
-    password: '',
-    role: 'USER'
-  });
-
+  const [employee, setEmployee] = useState({empId:"",name:"",department:"",salary:"",email:"",password:"",role:"USER"});
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
-    const fetchEmployee = async () => {
-      try {
-        const response = await getEmployees();
-        const emp = response.data.find((e) => e.empId === parseInt(id));
-        if (emp) {
-          setEmployee({ ...emp, password: '' });
-        } else {
-          navigate('/admin/employees');
-        }
-      } catch (error) {
-        console.error('Failed to fetch employee:', error);
-      }
-    };
-    fetchEmployee();
-  }, [id, navigate]);
+    getEmployees().then(res => {
+      const emp = res.data.find(e => e.empId === parseInt(id));
+      if (emp) setEmployee({...emp, password:""});
+      else navigate("/admin/employees");
+    }).catch(() => navigate("/admin/employees"));
+  }, [id]);
 
-  const handleChange = (e) => {
-    setEmployee({ ...employee, [e.target.name]: e.target.value });
-  };
+  const handleChange = e => setEmployee({...employee, [e.target.name]: e.target.value});
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-
-    if (employee.password && employee.password.length < 6) {
-      alert("❌ Password must be at least 6 characters.");
-      return;
-    }
-
+    if (employee.password && employee.password.length < 6) { setMessage("Password must be at least 6 characters."); return; }
+    setLoading(true);
     try {
       await updateEmployee(employee.empId, employee);
-      navigate('/admin/employees');
-    } catch (error) {
-      console.error('Failed to update employee:', error);
-    }
+      navigate("/admin/employees");
+    } catch(err) { setMessage("Failed to update employee."); setLoading(false); }
   };
 
   return (
-    <div
-      className="d-flex justify-content-center align-items-start p-3"
-      style={{ height: 'calc(100vh - 70px)', overflowY: 'auto' }}
-    >
-      <div className="card shadow-sm p-4 w-100" style={{ maxWidth: '500px' }}>
-        <h4 className="mb-4 text-primary fw-bold text-center">Update Employee</h4>
+    <div className="fade-in">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Update Employee</div>
+          <div className="page-sub">Edit employee #{id} information</div>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Employee ID</label>
-            <input
-              name="empId"
-              value={employee.empId}
-              className="form-control"
-              readOnly
-            />
-          </div>
+      <div style={{maxWidth:600,margin:"0 auto"}}>
+        <div className="ems-card">
+          {message && <div className="alert-ems alert-error">{message}</div>}
 
-          <div className="mb-3">
-            <label className="form-label">Name</label>
-            <input
-              name="name"
-              value={employee.name}
-              onChange={handleChange}
-              className="form-control"
-              required
-              placeholder="Enter name"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Department</label>
-            <input
-              name="department"
-              value={employee.department}
-              onChange={handleChange}
-              className="form-control"
-              required
-              placeholder="Enter department"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Salary</label>
-            <input
-              name="salary"
-              type="number"
-              value={employee.salary}
-              onChange={handleChange}
-              className="form-control"
-              required
-              placeholder="Enter salary"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Email</label>
-            <input
-              name="email"
-              type="email"
-              value={employee.email}
-              onChange={handleChange}
-              className="form-control"
-              required
-              placeholder="Enter email"
-              autoComplete="email"
-            />
-          </div>
-
-          <div className="mb-3 position-relative">
-            <label className="form-label">Password</label>
-            <div className="position-relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                className="form-control pe-5"
-                name="password"
-                value={employee.password}
-                onChange={handleChange}
-                placeholder="Leave empty to keep current"
-                autoComplete="new-password"
-              />
-              <span
-                onClick={togglePasswordVisibility}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: "15px",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  fontSize: "1.1rem",
-                  color: "#495057",
-                }}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
+          <form onSubmit={handleSubmit}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0 16px"}}>
+              <div className="form-group">
+                <label className="form-label">Employee ID</label>
+                <input name="empId" value={employee.empId} className="form-control-ems" readOnly/>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Full Name</label>
+                <input name="name" value={employee.name} onChange={handleChange} className="form-control-ems" placeholder="Full name" required/>
+              </div>
             </div>
-          </div>
 
-          <div className="d-flex justify-content-center mt-4">
-            <button type="submit" className="btn btn-success px-4">
-              Update
-            </button>
-          </div>
-        </form>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0 16px"}}>
+              <div className="form-group">
+                <label className="form-label">Department</label>
+                <select name="department" value={employee.department} onChange={handleChange} className="form-control-ems" required>
+                  <option value="">Select department</option>
+                  {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                  {employee.department && !departments.includes(employee.department) && (
+                    <option value={employee.department}>{employee.department}</option>
+                  )}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Salary (₹)</label>
+                <input name="salary" type="number" value={employee.salary} onChange={handleChange} className="form-control-ems" required/>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input name="email" type="email" value={employee.email} onChange={handleChange} className="form-control-ems" required autoComplete="email"/>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">New Password <span style={{color:"var(--text-3)",fontWeight:400}}>(leave blank to keep current)</span></label>
+              <div className="input-wrap">
+                <input name="password" type={showPassword ? "text" : "password"} value={employee.password}
+                  onChange={handleChange} className="form-control-ems" placeholder="Leave blank to keep current"
+                  style={{paddingRight:40}} autoComplete="new-password"/>
+                <span className="input-icon-right" onClick={() => setShowPassword(v => !v)}><EyeIcon open={showPassword}/></span>
+              </div>
+            </div>
+
+            <div style={{display:"flex",gap:10,marginTop:8}}>
+              <button type="button" className="btn-ems btn-secondary-ems" onClick={() => navigate("/admin/employees")}>Cancel</button>
+              <button type="submit" className="btn-ems btn-primary-ems" disabled={loading} style={{flex:1}}>
+                {loading ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

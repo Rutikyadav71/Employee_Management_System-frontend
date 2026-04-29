@@ -1,196 +1,74 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../services/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
-const LeaveRequestForm = () => {
-  const [form, setForm] = useState({
-    empId: "",
-    startDate: "",
-    endDate: "",
-    reason: "",
-  });
-
+export default function LeaveRequestForm() {
+  const [form, setForm] = useState({empId:"",startDate:"",endDate:"",reason:""});
   const [message, setMessage] = useState("");
-  const [leaves, setLeaves] = useState([]);
+  const [msgType, setMsgType] = useState("success");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const today = new Date().toISOString().split("T")[0];
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = e => setForm({...form, [e.target.name]: e.target.value});
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-
-    if (new Date(form.startDate) > new Date(form.endDate)) {
-      setMessage("❌ Start date must be before end date.");
-      return;
-    }
-
+  const handleSubmit = async e => {
+    e.preventDefault(); setMessage("");
+    if (form.startDate > form.endDate) { setMessage("End date must be after start date."); setMsgType("error"); return; }
+    setLoading(true);
     try {
-      await axios.post("http://localhost:8080/api/leaves", form);
-      setMessage("✅ Leave request submitted successfully.");
-      setForm({ ...form, startDate: "", endDate: "", reason: "" });
-      setLeaves([]); 
-    } catch (err) {
-      console.error("Error submitting leave request:", err);
-      setMessage("❌ Failed to submit leave request.");
-    }
-  };
-
-  const fetchHistory = async () => {
-    setMessage("");
-    try {
-      const res = await axios.get(
-        `http://localhost:8080/api/leaves/employee/${form.empId}`
-      );
-      setLeaves(res.data);
-    } catch (err) {
-      console.error("Error fetching leave history:", err);
-      setMessage("❌ Failed to fetch leave history.");
-    }
+      await axiosInstance.post("/api/leaves", form);
+      setMessage("Leave request submitted successfully!"); setMsgType("success");
+      setForm({empId:"",startDate:"",endDate:"",reason:""});
+    } catch(err) { setMessage(err.response?.data?.message || "Failed to submit leave."); setMsgType("error"); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="container-fluid py-4">
-      <div className="d-flex justify-content-center">
-        <div className="card shadow-sm p-4 w-100" style={{ maxWidth: "600px" }}>
-          <h4 className="mb-4 fw-bold text-primary text-center">
-            Apply for Leave
-          </h4>
+    <div className="fade-in">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Apply Leave</div>
+          <div className="page-sub">Submit a leave request on behalf of an employee</div>
+        </div>
+      </div>
 
-          {message && (
-            <div
-              className={`alert ${
-                message.includes("✅") ? "alert-success" : "alert-danger"
-              }`}
-              role="alert"
-            >
-              {message}
-            </div>
-          )}
+      <div style={{maxWidth:560,margin:"0 auto"}}>
+        <div className="ems-card">
+          {message && <div className={`alert-ems alert-${msgType}`}>{message}</div>}
 
           <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="empId" className="form-label">
-                Employee ID
-              </label>
-              <input
-                type="number"
-                className="form-control"
-                id="empId"
-                name="empId"
-                value={form.empId}
-                onChange={handleChange}
-                required
-              />
+            <div className="form-group">
+              <label className="form-label">Employee ID</label>
+              <input name="empId" value={form.empId} onChange={handleChange} className="form-control-ems" placeholder="e.g. 1001" required/>
             </div>
 
-            <div className="mb-3">
-              <label htmlFor="startDate" className="form-label">
-                Start Date
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                id="startDate"
-                name="startDate"
-                value={form.startDate}
-                onChange={handleChange}
-                required
-              />
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0 16px"}}>
+              <div className="form-group">
+                <label className="form-label">Start Date</label>
+                <input name="startDate" type="date" value={form.startDate} onChange={handleChange} className="form-control-ems" min={today} required/>
+              </div>
+              <div className="form-group">
+                <label className="form-label">End Date</label>
+                <input name="endDate" type="date" value={form.endDate} onChange={handleChange} className="form-control-ems" min={form.startDate || today} required/>
+              </div>
             </div>
 
-            <div className="mb-3">
-              <label htmlFor="endDate" className="form-label">
-                End Date
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                id="endDate"
-                name="endDate"
-                value={form.endDate}
-                onChange={handleChange}
-                required
-              />
+            <div className="form-group">
+              <label className="form-label">Reason</label>
+              <textarea name="reason" value={form.reason} onChange={handleChange} className="form-control-ems"
+                placeholder="Describe the reason for leave..." rows={4} required style={{resize:"vertical"}}/>
             </div>
 
-            <div className="mb-3">
-              <label htmlFor="reason" className="form-label">
-                Reason
-              </label>
-              <textarea
-                className="form-control"
-                id="reason"
-                name="reason"
-                rows="3"
-                value={form.reason}
-                onChange={handleChange}
-                required
-                placeholder="Reason for leave"
-              />
-            </div>
-
-            <div className="d-flex justify-content-center mt-4 gap-2">
-              <button type="submit" className="btn btn-success px-4">
-                Submit Request
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-outline-primary px-4"
-                onClick={fetchHistory}
-                disabled={!form.empId}
-              >
-                View Leave History
+            <div style={{display:"flex",gap:10}}>
+              <button type="button" className="btn-ems btn-secondary-ems" onClick={() => navigate("/admin/dashboard")}>Cancel</button>
+              <button type="submit" className="btn-ems btn-primary-ems" disabled={loading} style={{flex:1}}>
+                {loading ? "Submitting..." : "Submit Leave Request"}
               </button>
             </div>
           </form>
         </div>
       </div>
-
-      {leaves.length > 0 && (
-        <div className="mt-5 px-2">
-          <h5 className="fw-bold text-primary text-center mb-3">
-            Leave History for Employee ID: {form.empId}
-          </h5>
-          <div className="table-responsive" style={{ maxHeight: "300px", overflowY: "auto" }}>
-            <table className="table table-bordered table-striped">
-              <thead className="table-dark">
-                <tr>
-                  <th>Start Date</th>
-                  <th>End Date</th>
-                  <th>Reason</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaves.map((leave) => (
-                  <tr key={leave.id}>
-                    <td>{leave.startDate}</td>
-                    <td>{leave.endDate}</td>
-                    <td>{leave.reason}</td>
-                    <td>
-                      <span
-                        className={`badge ${
-                          leave.status === "APPROVED"
-                            ? "bg-success"
-                            : leave.status === "REJECTED"
-                            ? "bg-danger"
-                            : "bg-warning text-dark"
-                        }`}
-                      >
-                        {leave.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
-};
-
-export default LeaveRequestForm;
+}

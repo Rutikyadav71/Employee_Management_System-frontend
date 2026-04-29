@@ -1,96 +1,97 @@
 import React, { useEffect, useRef, useState } from "react";
 import { connect, disconnect } from "../services/chatService";
-import { FaChevronLeft, FaChevronRight, FaComments } from "react-icons/fa";
 import ChatSidebar from "./ChatSidebar";
 import ChatRoom from "./ChatRoom";
 import "./chat.css";
 
-function ChatPage() {
-  const role = localStorage.getItem("role");
+const MenuIcon = () => <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
+const ChevL    = () => <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const ChevR    = () => <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const BackIcon = () => <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const ChatIco  = () => <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 
-  const rawId =
-    role === "ADMIN"
-      ? localStorage.getItem("id")
-      : localStorage.getItem("empId");
-
+export default function ChatPage() {
+  const role          = localStorage.getItem("role");
+  const rawId         = role==="ADMIN" ? localStorage.getItem("id") : localStorage.getItem("empId");
   const currentUserId = Number(rawId);
 
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [incomingMessage, setIncomingMessage] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedUser,    setSelectedUser]    = useState(null);
+  const [refreshTrigger,  setRefreshTrigger]  = useState(0);
+  const [incomingMsg,     setIncomingMsg]     = useState(null);
+  const [sidebarCollapsed,setSidebarCollapsed]= useState(false); // desktop
+  const [mobileSbOpen,    setMobileSbOpen]    = useState(true);  // mobile
 
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
+  const isMob = () => window.innerWidth <= 768;
+  const touchX0 = useRef(0), touchX1 = useRef(0);
 
   useEffect(() => {
-    if (!currentUserId || Number.isNaN(currentUserId) || !role) {
-      console.error("❌ Missing chat identity", { currentUserId, role });
-      return;
-    }
-
-    connect(currentUserId, role, (msg) => {
-      setIncomingMessage(msg);
-      setRefreshTrigger((prev) => prev + 1);
+    if (!currentUserId||isNaN(currentUserId)||!role) return;
+    connect(currentUserId, role, msg => {
+      setIncomingMsg(msg);
+      setRefreshTrigger(p=>p+1);
     });
-
     return () => disconnect();
   }, [currentUserId, role]);
 
-  const handleSelectUser = (user) => {
+  const handleSelectUser = user => {
     setSelectedUser(user);
-    setIncomingMessage(null);
-    setRefreshTrigger((prev) => prev + 1);
+    setIncomingMsg(null);
+    setRefreshTrigger(p=>p+1);
+    if (isMob()) setMobileSbOpen(false);
+  };
 
-    if (window.innerWidth < 768) {
-      setSidebarOpen(false);
+  const toggleSidebar = () => {
+    if (isMob()) setMobileSbOpen(p=>!p);
+    else setSidebarCollapsed(p=>!p);
+  };
+
+  const handleBack = () => { setMobileSbOpen(true); setSelectedUser(null); };
+
+  const onTouchStart = e => { touchX0.current=e.touches[0].clientX; };
+  const onTouchEnd   = e => {
+    touchX1.current=e.changedTouches[0].clientX;
+    const d=touchX1.current-touchX0.current;
+    if (isMob()) {
+      if (d>60)  setMobileSbOpen(true);
+      if (d<-60) setMobileSbOpen(false);
     }
   };
 
-  useEffect(() => {
-    const handler = () => setSidebarOpen((prev) => !prev);
-    window.addEventListener("chat-toggle-sidebar", handler);
-    return () => window.removeEventListener("chat-toggle-sidebar", handler);
-  }, []);
+  // Sidebar CSS class
+  const sbClass = isMob()
+    ? `chat-sidebar-wrapper ${mobileSbOpen?"open":"closed"}`
+    : `chat-sidebar-wrapper ${sidebarCollapsed?"closed":"open"}`;
 
-  const onTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const onTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const onTouchEnd = () => {
-    const delta = touchEndX.current - touchStartX.current;
-
-    if (delta > 80) setSidebarOpen(true);
-    if (delta < -80) setSidebarOpen(false);
-  };
+  // Chat room hidden on mobile when sidebar is open and no user selected
+  const chatHidden = isMob()&&mobileSbOpen&&!selectedUser;
 
   return (
-    <div
-      className="chat-page-wrapper"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
+    <div className="chat-page-wrapper" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      {/* Top bar */}
       <div className="chat-topbar">
-        <button
-          className="chat-toggle-btn"
-          onClick={() => setSidebarOpen((prev) => !prev)}
-        >
-          {sidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
-        </button>
-        <span className="chat-title"> <FaComments className="me-2" />Chat Room</span>
+        {isMob()&&selectedUser&&!mobileSbOpen
+          ? <button className="chat-toggle-btn" onClick={handleBack} title="Back"><BackIcon/></button>
+          : <button className="chat-toggle-btn" onClick={toggleSidebar}
+              title={isMob()?"Contacts":(sidebarCollapsed?"Show contacts":"Hide contacts")}>
+              {isMob()?<MenuIcon/>:(sidebarCollapsed?<ChevR/>:<ChevL/>)}
+            </button>
+        }
+        <span className="chat-title">
+          <ChatIco/>
+          {selectedUser?`Chatting with ${selectedUser.name}`:"Chat Room"}
+        </span>
       </div>
 
+      {/* Body */}
       <div className="chat-container">
-        <div
-          className={`chat-sidebar-wrapper ${
-            sidebarOpen ? "open" : "closed"
-          }`}
-        >
+        {/* Mobile overlay backdrop */}
+        {isMob()&&mobileSbOpen&&selectedUser&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:19}}
+            onClick={()=>setMobileSbOpen(false)}/>
+        )}
+
+        {/* Sidebar */}
+        <div className={sbClass}>
           <ChatSidebar
             currentUserId={currentUserId}
             currentUserRole={role}
@@ -100,19 +101,20 @@ function ChatPage() {
           />
         </div>
 
-        <div className="chat-room-wrapper">
-          <ChatRoom
-            key={`${selectedUser?.id || "empty"}_${selectedUser?.role || ""}`}
-            currentUserId={currentUserId}
-            currentUserRole={role}
-            selectedUser={selectedUser}
-            incomingMessage={incomingMessage}
-            onMessageSent={() => setRefreshTrigger((prev) => prev + 1)}
-          />
-        </div>
+        {/* Chat room */}
+        {!chatHidden && (
+          <div className="chat-room-wrapper">
+            <ChatRoom
+              key={`${selectedUser?.id||"none"}_${selectedUser?.role||""}`}
+              currentUserId={currentUserId}
+              currentUserRole={role}
+              selectedUser={selectedUser}
+              incomingMessage={incomingMsg}
+              onMessageSent={()=>setRefreshTrigger(p=>p+1)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-export default ChatPage;
