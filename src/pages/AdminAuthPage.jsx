@@ -10,7 +10,7 @@ const EyeIcon = ({ open }) => open
 export default function AdminAuthPage() {
   const [firstTime, setFirstTime] = useState(false); // no admins at all
   const [adminFull, setAdminFull] = useState(false); // 4 admins
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "admin1@gmail.com", password: "Admin@1" });
   const [message, setMessage] = useState("");
   const [msgType, setMsgType] = useState("error");
   const [loading, setLoading] = useState(false);

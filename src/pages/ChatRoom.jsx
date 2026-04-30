@@ -26,19 +26,26 @@ const I = {
   starF: <svg width="14" height="14" fill="#f59e0b" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="#f59e0b" strokeWidth="1.8" /></svg>,
   info: <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" /><path d="M12 8h.01M12 12v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>,
   close: <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>,
+  pdf: <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8" /><path d="M14 2v6h6M9 15h6M9 11h6M9 19h6" stroke="currentColor" strokeWidth="1.8" /></svg>,
+  word: <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8" /><path d="M14 2v6h6M9 15h6M9 11h6" stroke="currentColor" strokeWidth="1.8" /></svg>,
+  xls: <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8" /><path d="M14 2v6h6M8 12h8v8H8z" stroke="currentColor" strokeWidth="1.8" /></svg>,
+  ppt: <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8" /><path d="M14 2v6h6" stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="14" r="3" stroke="currentColor" strokeWidth="1.8" /></svg>,
+  vid: <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" /><path d="M2 12h20M7 3v14M17 3v14M22 7l-5 5 5 5V7z" stroke="currentColor" strokeWidth="1.8" /></svg>,
+  aud: <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" stroke="currentColor" strokeWidth="1.8" /><circle cx="6" cy="18" r="3" stroke="currentColor" strokeWidth="1.8" /><circle cx="18" cy="16" r="3" stroke="currentColor" strokeWidth="1.8" /></svg>,
+  zip: <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8" /><path d="M14 2v6h6M10 12h4v4h-4zM12 8v4" stroke="currentColor" strokeWidth="1.8" /></svg>,
 };
 
 /* File type → color + label */
 function getFileType(mime = "", name = "") {
   const ext = (name.split(".").pop() || "").toLowerCase();
-  if (mime.includes("pdf") || ext === "pdf") return { color: "#dc2626", lbl: "PDF" };
-  if (mime.includes("word") || ["doc", "docx"].includes(ext)) return { color: "#2563eb", lbl: "DOC" };
-  if (mime.includes("sheet") || ["xls", "xlsx"].includes(ext)) return { color: "#16a34a", lbl: "XLS" };
-  if (mime.includes("presentation") || ["ppt", "pptx"].includes(ext)) return { color: "#ea580c", lbl: "PPT" };
-  if (mime.startsWith("video/") || ["mp4", "mov", "avi"].includes(ext)) return { color: "#7c3aed", lbl: "VID" };
-  if (mime.startsWith("audio/") || ["mp3", "wav"].includes(ext)) return { color: "#0891b2", lbl: "AUD" };
-  if (["zip", "rar", "7z", "gz"].includes(ext)) return { color: "#854d0e", lbl: "ZIP" };
-  return { color: "#64748b", lbl: "FILE" };
+  if (mime.includes("pdf") || ext === "pdf") return { color: "#dc2626", lbl: "PDF", icon: I.pdf };
+  if (mime.includes("word") || ["doc", "docx"].includes(ext)) return { color: "#2563eb", lbl: "DOC", icon: I.word };
+  if (mime.includes("sheet") || ["xls", "xlsx"].includes(ext)) return { color: "#16a34a", lbl: "XLS", icon: I.xls };
+  if (mime.includes("presentation") || ["ppt", "pptx"].includes(ext)) return { color: "#ea580c", lbl: "PPT", icon: I.ppt };
+  if (mime.startsWith("video/") || ["mp4", "mov", "avi"].includes(ext)) return { color: "#7c3aed", lbl: "VID", icon: I.vid };
+  if (mime.startsWith("audio/") || ["mp3", "wav"].includes(ext)) return { color: "#0891b2", lbl: "AUD", icon: I.aud };
+  if (["zip", "rar", "7z", "gz"].includes(ext)) return { color: "#854d0e", lbl: "ZIP", icon: I.zip };
+  return { color: "#64748b", lbl: "FILE", icon: I.fileIc };
 }
 
 /* Parse file message — handles both old [FILE:name:url] and new [FILE:name:mime:size:url] */
@@ -57,44 +64,75 @@ function parseFile(text) {
 }
 
 /* Download a file properly */
-function downloadFile(url, filename) {
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => document.body.removeChild(a), 100);
+/* Download a file properly with blob approach to preserve filename/extension */
+async function downloadFile(url, filename) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Fetch failed");
+    const blob = await res.blob();
+    const bUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = bUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(bUrl);
+  } catch (e) {
+    // Fallback if CORS or fetch fails
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 100);
+  }
 }
 
-/* File card component */
+/* File card component — WhatsApp styled */
 function FileCard({ info, isMine }) {
   const ft = getFileType(info.mime, info.name);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 200, maxWidth: 280 }}>
+    <div style={{
+      display: "flex", alignItems: "center", gap: 12, minWidth: 210, maxWidth: 300,
+      padding: "2px 0"
+    }}>
       <div style={{
-        width: 42, height: 42, borderRadius: 10, flexShrink: 0, display: "flex",
+        width: 48, height: 48, borderRadius: 12, flexShrink: 0, display: "flex",
         alignItems: "center", justifyContent: "center",
-        background: `${ft.color}1a`, border: `1.5px solid ${ft.color}55`
+        background: `${ft.color}1a`, border: `1px solid ${ft.color}33`,
+        color: ft.color, boxShadow: `0 4px 12px ${ft.color}11`
       }}>
-        <span style={{ fontSize: 9.5, fontWeight: 900, color: ft.color, fontFamily: "'Outfit',sans-serif", letterSpacing: -0.5 }}>
-          {ft.lbl}
-        </span>
+        {ft.icon}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{info.name}</div>
-        <div style={{ fontSize: 10.5, opacity: 0.65, marginTop: 1 }}>{info.size ? fmtSz(info.size) : ft.lbl + " file"}</div>
+        <div style={{
+          fontSize: 13.5, fontWeight: 600, color: isMine ? "white" : "var(--text-1)",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
+        }}>
+          {info.name}
+        </div>
+        <div style={{
+          fontSize: 11, opacity: 0.7, marginTop: 2,
+          color: isMine ? "rgba(255,255,255,0.8)" : "var(--text-3)",
+          display: "flex", alignItems: "center", gap: 5
+        }}>
+          <span>{ft.lbl}</span>
+          <span style={{ opacity: 0.5 }}>•</span>
+          <span>{info.size ? fmtSz(info.size) : "File"}</span>
+        </div>
       </div>
       <button onClick={() => downloadFile(info.url, info.name)}
         style={{
-          width: 30, height: 30, borderRadius: "50%", border: "none", cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .15s",
+          width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
           background: isMine ? "rgba(255,255,255,0.15)" : "var(--bg-hover)",
-          color: isMine ? "white" : "var(--text-2)"
+          color: isMine ? "white" : "var(--text-2)", transition: "all .2s"
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = isMine ? "rgba(255,255,255,0.28)" : "var(--border-bright)"; }}
-        onMouseLeave={e => { e.currentTarget.style.background = isMine ? "rgba(255,255,255,0.15)" : "var(--bg-hover)"; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.background = isMine ? "rgba(255,255,255,0.25)" : "var(--border-bright)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.background = isMine ? "rgba(255,255,255,0.15)" : "var(--bg-hover)"; }}
         title="Download">
         {I.download}
       </button>
